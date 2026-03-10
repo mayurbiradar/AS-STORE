@@ -1,0 +1,14 @@
+import axios from "axios";
+
+const ORDER_API = axios.create({
+  baseURL: "http://localhost:8083/api/orders",
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export const getOrders = (token?: string) => ORDER_API.get("", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+export const getOrder = (id: string | number, token?: string) => ORDER_API.get(`/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+export const createOrder = (data: any, token?: string) => ORDER_API.post("", data, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+export const updateOrder = (id: string | number, data: any, token?: string) => ORDER_API.put(`/${id}`, data, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+export const deleteOrder = (id: string | number, token?: string) => ORDER_API.delete(`/${id}`, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
