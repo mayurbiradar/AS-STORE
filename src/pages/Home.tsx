@@ -1,15 +1,50 @@
-import { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
-import { useToast } from '../context/ToastContext'
-import { getProducts } from '../api/productApi'
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Home() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [products, setProducts] = useState([])
-  const { cart, addToCart, updateQuantity } = useCart()
-  const { addToast } = useToast()
   const location = useLocation();
+  // Carousel state
+  const randomNames = [
+    'Priya Sharma', 'Rohit Patil', 'Sneha Kulkarni', 'Amit Deshmukh', 'Meera Joshi', 'Vikas More',
+    'Neha Singh', 'Suresh Pawar', 'Anjali Mehta', 'Kiran Chavan', 'Ritika Jain', 'Manoj Bhosale'
+  ];
+  const randomComments = [
+    'The craftsmanship is amazing. I love my new necklace, it sparkles beautifully!',
+    'Bought a ring for my wife. She absolutely loved it! Great quality and fast delivery.',
+    'The earrings are gorgeous and lightweight. Will definitely buy again!',
+    'Excellent customer service and beautiful designs. Highly recommended!',
+    'The bracelet is stunning and fits perfectly. Thank you for the quick delivery!',
+    'Beautiful packaging and amazing product. My mom loved her birthday gift!',
+    'Fast shipping and the product exceeded my expectations!',
+    'The pendant is elegant and matches my style perfectly.',
+    'Amazing quality and affordable prices. Will recommend to friends.',
+    'The ring is so pretty and fits just right. Love it!',
+    'Customer support was very helpful and responsive.',
+    'The jewelry is unique and gets lots of compliments.'
+  ];
+  const randomIcons = ['👩', '👨'];
+  const randomRatings = [4, 5];
+  const testimonials = Array.from({ length: 12 }, (_, i) => ({
+    name: randomNames[i],
+    city: 'Pune',
+    comment: randomComments[i],
+    rating: randomRatings[Math.floor(Math.random() * randomRatings.length)],
+    icon: randomIcons[Math.floor(Math.random() * randomIcons.length)],
+  }));
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Show 4 reviews at a time
+  const groupSize = 4;
+  const totalGroups = Math.ceil(testimonials.length / groupSize);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % totalGroups);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [totalGroups]);
+
+  const goToSlide = (idx) => setActiveIndex(idx);
 
   // Removed products API call on homepage load
 
@@ -81,30 +116,38 @@ export default function Home() {
           <h2 className="text-5xl font-bold text-center mb-16">
             What Our Customers Say
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[{
-              name: 'Sarah Johnson',
-              comment: 'Absolutely stunning! The quality exceeded my expectations.',
-              rating: 5,
-            }, {
-              name: 'Emma Davis',
-              comment: 'Perfect for my engagement. Timeless and elegant!',
-              rating: 5,
-            }, {
-              name: 'Lisa Anderson',
-              comment: 'Customer service was exceptional. Highly recommended!',
-              rating: 5,
-            }].map((testimonial, idx) => (
-              <div key={idx} className="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-xl border border-white border-opacity-20 hover:border-opacity-40 transition">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-300">⭐</span>
-                  ))}
-                </div>
-                <p className="text-lg mb-4 italic">"{testimonial.comment}"</p>
-                <p className="font-bold">{testimonial.name}</p>
+          <div className="flex justify-center items-center">
+            <div className="relative w-full max-w-5xl flex flex-col items-center">
+              <div className="flex flex-row gap-8 transition-all duration-500 justify-center w-full">
+                {testimonials.slice(activeIndex * groupSize, activeIndex * groupSize + groupSize).map((testimonial, idx) => (
+                  <div key={idx} className="bg-white bg-opacity-10 backdrop-blur-md p-8 rounded-xl border border-white border-opacity-20 hover:border-opacity-40 transition min-w-[380px] max-w-[400px] h-[260px] flex-1 flex flex-col justify-between relative">
+                    <div>
+                      <div className="flex items-center mb-4">
+                        <span className="text-3xl mr-2 text-gray-900">{testimonial.icon}</span>
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <span key={i} className="text-yellow-300">⭐</span>
+                        ))}
+                      </div>
+                      <p className="text-lg mb-4 italic text-gray-900 text-center">"{testimonial.comment}"</p>
+                    </div>
+                    <div className="absolute right-6 bottom-6 text-right">
+                      <p className="font-bold text-gray-900">- {testimonial.name} <span className="text-sm text-purple-400">({testimonial.city})</span></p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+              <div className="flex justify-center mt-8">
+                {Array.from({ length: totalGroups }).map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`w-5 h-5 mx-2 rounded-full border-2 border-purple-400 focus:outline-none transition ${activeIndex === idx ? 'bg-purple-400' : 'bg-purple-900'}`}
+                    onClick={() => goToSlide(idx)}
+                    aria-label={`Go to testimonial group ${idx + 1}`}
+                    style={{ boxShadow: activeIndex === idx ? '0 0 6px 2px #a78bfa' : 'none' }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -141,7 +184,7 @@ export default function Home() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 sm:px-6 py-2 sm:py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-sm sm:text-base"
+              className="flex-1 min-w-[280px] sm:min-w-[340px] px-4 sm:px-8 py-2 sm:py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 text-sm sm:text-base"
             />
             <button className="px-6 sm:px-8 py-2 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition duration-200 text-sm sm:text-base whitespace-nowrap">
               Subscribe
