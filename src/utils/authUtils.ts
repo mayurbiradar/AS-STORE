@@ -12,13 +12,14 @@ export async function handleTokenRefresh() {
   }
 }
 
-export async function handleLogout() {
   const refresh = localStorage.getItem('refreshToken');
   if (!refresh) return;
   try {
     await logoutUser(refresh);
-  } finally {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    // Clear all tokens and sensitive state
+    localStorage.clear();
+    sessionStorage.clear();
+  } catch {
+    // Do not clear tokens if logout fails
   }
 }

@@ -2,6 +2,7 @@ package com.asstore.auth.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,7 +95,7 @@ public class AuthService {
 
     public AuthResponse refresh(String refreshToken) {
         Optional<RefreshToken> rtOpt = refreshTokenRepository.findAll().stream()
-            .filter(rt -> passwordEncoder.matches(refreshToken, rt.getTokenHash()) && !rt.isRevoked() && rt.getExpiresAt().isAfter(Instant.now()))
+            .filter(rt -> passwordEncoder.matches(refreshToken.replaceAll("\"", ""), rt.getTokenHash()) && !rt.isRevoked() && rt.getExpiresAt().isAfter(Instant.now()))
             .findFirst();
         if (rtOpt.isEmpty()) throw new RuntimeException("Invalid refresh token");
         RefreshToken rt = rtOpt.get();
@@ -105,13 +106,13 @@ public class AuthService {
     }
 
     public void logout(String refreshToken) {
-        Optional<RefreshToken> rtOpt = refreshTokenRepository.findAll().stream()
-            .filter(rt -> passwordEncoder.matches(refreshToken, rt.getTokenHash()))
-            .findFirst();
-        rtOpt.ifPresent(rt -> {
-            rt.setRevoked(true);
-            refreshTokenRepository.save(rt);
-        });
+        List<RefreshToken> rtOpt = refreshTokenRepository.findAll().stream()
+            .filter(rt -> passwordEncoder.matches(refreshToken.replaceAll("\"", ""), rt.getTokenHash()))
+            .toList();
+       
+        if(rtOpt!=null && !rtOpt.isEmpty()) {
+        	refreshTokenRepository.deleteAll(rtOpt);
+        }
     }
     public String getUserIdFromToken(String token) {
         return jwtService.getUserId(token);

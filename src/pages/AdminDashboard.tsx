@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../context/AdminContext'
 import { useCart } from '../context/CartContext'
 // import axios from 'axios'
+import { API_BASE_URL } from '../constants';
 
 export default function AdminDashboard() {
   const { users, products, addProduct, deleteProduct, deleteUser } = useAdmin()
@@ -239,7 +240,7 @@ export default function AdminDashboard() {
                   onClick={() => navigate(`/admin/product/${product.id}`)}
                   className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex gap-6 cursor-pointer border-l-4 border-indigo-600"
                 >
-                  <img src={product.image.startsWith('/images/') ? `http://localhost:8082${product.image}` : product.image} alt={product.name} className="w-24 h-24 object-cover rounded-lg" />
+                  <img src={product.image.startsWith('/images/') ? `${API_BASE_URL}${product.image}` : product.image} alt={product.name} className="w-24 h-24 object-cover rounded-lg" />
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
                     <p className="text-lg font-bold text-indigo-600">₹{product.price.toLocaleString('en-IN')}</p>
@@ -371,7 +372,7 @@ export default function AdminDashboard() {
                       </div>
                       <div>
                         <p className="text-gray-600 text-sm">Total</p>
-                        <p className="font-bold text-indigo-600">₹{order.total.toLocaleString('en-IN')}</p>
+                        <p className="font-bold text-indigo-600">₹{order.totalAmount?.toLocaleString('en-IN')}</p>
                       </div>
                       <div>
                         <p className="text-gray-600 text-sm">Status</p>
@@ -389,9 +390,15 @@ export default function AdminDashboard() {
                     <div>
                       <p className="font-bold mb-2">Items:</p>
                       <div className="grid gap-2">
-                        {order.items.map(item => (
-                          <div key={item.id} className="text-sm text-gray-600">
-                            {item.name} × {item.quantity} = ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                        {order.items?.map(item => (
+                          <div key={item.id ? `${item.id}-${item.productId}` : `${item.productId}-${item.name}`} className="flex items-center gap-2 text-sm text-gray-600">
+                            {item.image && (
+                              <img src={item.image && item.image.startsWith('/images/')
+                                ? `${API_BASE_URL}${item.image}`
+                                : item.image}
+                                alt={item.name} className="w-10 h-10 object-cover rounded" />
+                            )}
+                            <span>{item.name} × {item.quantity} = ₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                           </div>
                         ))}
                       </div>

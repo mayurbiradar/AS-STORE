@@ -21,5 +21,5 @@ spring:
 
 jwt:
   secret: auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long
-  access-token-expiration-minutes: 15
+  access-token-expiration-minutes: 120
   refresh-token-expiration-days: 30

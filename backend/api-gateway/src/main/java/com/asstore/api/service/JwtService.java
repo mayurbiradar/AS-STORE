@@ -1,4 +1,4 @@
-package com.asstore.product.security;
+package com.asstore.api.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

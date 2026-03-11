@@ -1,7 +1,9 @@
+
 import axios from "axios";
+import { API_BASE_URL } from "../constants";
 
 export const API = axios.create({
-  baseURL: "http://localhost:8081/api/auth",
+  baseURL: `${API_BASE_URL}/api/auth`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -16,28 +18,33 @@ API.interceptors.response.use(
     if (
       error.response &&
       (error.response.status === 401 || error.response.status === 403) &&
-      refreshAttempts < 3 &&
+      refreshAttempts < 5 &&
       localStorage.getItem('refreshToken')
     ) {
       refreshAttempts++;
       originalRequest._retry = true;
+      const refresh = localStorage.getItem('refreshToken');
       try {
-        const refresh = localStorage.getItem('refreshToken');
-        const res = await API.post('/refresh', { refreshToken: refresh });
+        // Wait for 10 seconds before refreshing
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        const res = await API.post('/refresh', refresh);
         localStorage.setItem('accessToken', res.data.accessToken);
         API.defaults.headers.common['Authorization'] = `Bearer ${res.data.accessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${res.data.accessToken}`;
         return API(originalRequest);
       } catch (refreshError) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        // If refresh token is expired/invalid, call logout API
+        try {
+          await API.post('/logout', refresh);
+        } catch (logoutError) {
+          // Ignore logout errors
+        }
         window.location.href = '/login';
         refreshAttempts = 0;
         return Promise.reject(refreshError);
       }
     } else if (refreshAttempts >= 3) {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      // Do not clear localStorage, just redirect
       window.location.href = '/login';
       refreshAttempts = 0;
     }
@@ -60,9 +67,9 @@ export const loginUser = (data: { email: string; password: string }) => {
 };
 
 export const refreshToken = (refreshToken: string) => {
-  return API.post("/refresh", { refreshToken });
+  return API.post("/refresh", refreshToken);
 };
 
 export const logoutUser = (refreshToken: string) => {
-  return API.post("/logout", { refreshToken });
+  return API.post("/logout", refreshToken );
 };

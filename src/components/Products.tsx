@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+
+import { API_BASE_URL } from '../constants';
+
 import { getProducts } from '../api/productApi';
 
 export default function Products() {
@@ -57,7 +60,7 @@ export default function Products() {
               >
                 <div className="bg-gradient-to-br from-purple-200 to-pink-200 h-48 sm:h-56 md:h-64 flex items-center justify-center relative overflow-hidden">
                   <img
-                    src={product.image.startsWith('/images/') ? `http://localhost:8082${product.image}` : product.image}
+                    src={product.image.startsWith('/images/') ? `${API_BASE_URL}${product.image}` : product.image}
                     alt={product.name}
                     className="w-full h-full object-cover transition duration-300 hover:scale-110 rounded-xl"
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover', objectPosition: 'center' }}

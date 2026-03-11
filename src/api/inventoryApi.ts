@@ -1,7 +1,9 @@
+
 import axios from "axios";
+import { API_BASE_URL } from "../constants";
 
 const INVENTORY_API = axios.create({
-  baseURL: "http://localhost:8084/api/inventory",
+  baseURL: `${API_BASE_URL}/api/inventory`,
   headers: {
     "Content-Type": "application/json",
   },

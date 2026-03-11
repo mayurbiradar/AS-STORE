@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
+import { useCart } from '../context/CartContext';
+
+import { API_BASE_URL } from '../constants';
 
 export default function Cart() {
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart()
@@ -40,7 +42,7 @@ export default function Cart() {
                 <div key={item.id} className="border-b border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 hover:bg-gray-50 transition">
                   {/* Product Image */}
                   <img
-                    src={item.image.startsWith('/images/') ? `http://localhost:8082${item.image}` : item.image}
+                    src={item.image.startsWith('/images/') ? `${API_BASE_URL}${item.image}` : item.image}
                     alt={item.name}
                     className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-lg"
                   />

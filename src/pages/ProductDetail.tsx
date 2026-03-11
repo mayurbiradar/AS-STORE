@@ -85,7 +85,7 @@ export default function ProductDetail() {
           <div>
             <div className="bg-white rounded-lg shadow-lg overflow-hidden">
               <img
-                src={(editData.image || product.image).startsWith('/images/') ? `http://localhost:8082${editData.image || product.image}` : (editData.image || product.image)}
+                src={(editData.image || product.image).startsWith('/images/') ? `${API_BASE_URL}${editData.image || product.image}` : (editData.image || product.image)}
                 alt={product.name}
                 className="w-full h-80 object-cover"
               />

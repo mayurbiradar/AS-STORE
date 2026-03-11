@@ -1,15 +1,18 @@
 package com.asstore.auth.service;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class JwtService {
@@ -47,5 +50,24 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+    
+
+    public Claims validateToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+    
+    public String getUsername(String token) {
+        Claims claims = validateToken(token);
+        return claims.get("username", String.class);
+    }
+
+    public List<String> getRoles(String token) {
+        Claims claims = validateToken(token);
+        return claims.get("roles", List.class);
     }
 }

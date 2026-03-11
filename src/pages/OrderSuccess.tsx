@@ -1,8 +1,18 @@
-import { useLocation, Link } from 'react-router-dom'
-
+import { useLocation, Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import { API_BASE_URL } from '../constants';
 export default function OrderSuccess() {
-  const location = useLocation()
-  const orderId = location.state?.orderId || 'ORD-UNKNOWN'
+  const location = useLocation();
+  const navigate = useNavigate();
+  const order = location.state?.order || null;
+  const orderId = order?.id || location.state?.orderId || 'ORD-UNKNOWN';
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 px-4 py-20">
@@ -26,17 +36,30 @@ export default function OrderSuccess() {
             <div className="mb-6 pb-6 border-b border-gray-200">
               <p className="text-gray-600 text-sm mb-2">Order Number</p>
               <p className="text-3xl font-bold text-gray-800">{orderId}</p>
+              {order && (
+                <>
+                  <p className="text-gray-600 text-sm mt-2">Placed on</p>
+                  <p className="font-bold">{new Date(order.createdAt).toLocaleString('en-IN')}</p>
+                  <p className="text-gray-600 text-sm mt-2">Status</p>
+                  <p className="font-bold capitalize">{order.status}</p>
+                  <p className="text-gray-600 text-sm mt-2">Total Amount</p>
+                  <p className="font-bold text-green-600 text-2xl">₹{order.totalAmount?.toLocaleString('en-IN')}</p>
+                  <p className="text-gray-600 text-sm mt-2">Items</p>
+                  <ul className="mt-2 space-y-2">
+                    {order.items?.map(item => (
+                      <li key={item.id} className="flex items-center gap-3">
+                        {item.image && <img src={item.image.startsWith('/images/') ? `${API_BASE_URL}${item.image}` : item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />}
+                        <span className="font-bold">{item.productName}</span>
+                        <span>× {item.quantity}</span>
+                        <span>₹{item.subtotal?.toLocaleString('en-IN')}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
-
+            {/* What's Next section remains unchanged */}
             <div className="space-y-4">
-              <div>
-                <p className="text-gray-600 text-sm">Order Status</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
-                  <p className="font-bold text-gray-800">Order Confirmed</p>
-                </div>
-              </div>
-
               <div>
                 <p className="text-gray-600 text-sm">What's Next?</p>
                 <ul className="mt-2 space-y-2 text-gray-700">

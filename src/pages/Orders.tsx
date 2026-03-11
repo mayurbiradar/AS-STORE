@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
+
+import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../constants';
+import { useCart } from '../context/CartContext';
 
 export default function Orders() {
   const { orders } = useCart()
@@ -77,7 +79,7 @@ export default function Orders() {
                     <div key={item.id} className="flex justify-between items-center pb-3 border-b border-gray-200 last:border-0">
                       <div className="flex items-center gap-4">
                         <img
-                          src={item.image.startsWith('/images/') ? `http://localhost:8082${item.image}` : item.image}
+                          src={item.image.startsWith('/images/') ? `${API_BASE_URL}${item.image}` : item.image}
                           alt={item.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />

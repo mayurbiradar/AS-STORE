@@ -1,20 +1,25 @@
 server:
-  port: 8084
+  port: 8083
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/asw
+    url: jdbc:postgresql://localhost:5432/asj
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   kafka:
     bootstrap-servers: localhost:9092
+  application:
+    name: order-service
 
 flyway:
   enabled: true
   locations: classpath:db/migration
+
+jwt:
+ secret: auth_service_jwt_secret_change_in_prod_to_strong_secret_at_least_32_chars_long

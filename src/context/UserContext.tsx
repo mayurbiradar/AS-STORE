@@ -42,9 +42,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', updateUser);
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+  const logout = async () => {
+    // Call backend logout and clear tokens
+    const { handleLogout } = await import('../utils/authUtils');
+    await handleLogout();
     localStorage.removeItem('user');
     setUser(null);
     window.location.href = '/login';

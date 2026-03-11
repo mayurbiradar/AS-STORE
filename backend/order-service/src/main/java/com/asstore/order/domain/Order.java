@@ -1,4 +1,5 @@
 package com.asstore.order.domain;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -12,11 +13,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
 public class Order {
     @Id
     @GeneratedValue
@@ -26,7 +29,7 @@ public class Order {
     private UUID userId;
 
     @Column(nullable = false)
-    private String status = "CREATED"; // CREATED, CONFIRMED, PAID, SHIPPED, DELIVERED, CANCELLED
+    private String status = "PLACED"; // PLACED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
 
     @Column(nullable = false)
     private Long totalAmount = 0L; // in paise/cents
@@ -38,5 +41,6 @@ public class Order {
     private Instant updatedAt = Instant.now();
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<OrderItem> items = new HashSet<>();
 }

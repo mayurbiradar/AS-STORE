@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { loginUser } from '../api/authApi'
 import axios from 'axios'
+import { API_BASE_URL } from '../constants'
 import { useUser } from '../context/UserContext'
 import { Navigate } from 'react-router-dom';
 
@@ -30,10 +31,13 @@ export default function Login() {
       localStorage.setItem('accessToken', response.data.accessToken)
       localStorage.setItem('refreshToken', response.data.refreshToken)
       // Fetch user info
-      const userRes = await axios.get('http://localhost:8081/api/auth/me', {
+      const userRes = await axios.get(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${response.data.accessToken}` }
       })
       localStorage.setItem('user', JSON.stringify(userRes.data))
+      if (userRes.data.id) {
+        localStorage.setItem('userId', userRes.data.id);
+      }
       // Normalize role for UI
       let userObj = userRes.data;
       if (userObj.role === 'ROLE_ADMIN') userObj.role = 'admin';

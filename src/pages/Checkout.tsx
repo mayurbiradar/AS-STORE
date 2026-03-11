@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { API_BASE_URL } from "../constants";
 
 export default function Checkout() {
   const navigate = useNavigate()
@@ -26,24 +27,46 @@ export default function Checkout() {
   }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Create order
-    const orderId = `ORD-${Date.now()}`
-    const order = {
-      id: orderId,
-      items: cart,
-      total: getCartTotal() + Math.round(getCartTotal() * 0.18),
-      date: new Date().toLocaleDateString('en-IN'),
-      status: 'confirmed' as const,
-    }
-    
-    addOrder(order)
-    clearCart()
-    navigate('/order-success', { state: { orderId } })
+    e.preventDefault();
+    // Build order payload matching backend
+    const userId = localStorage.getItem('userId') || '';
+    const subtotal = getCartTotal();
+    const tax = Math.round(subtotal * 0.18);
+    const totalAmount = subtotal + tax;
+    const orderItems = cart.map(item => ({
+      productId: item.id,
+      sku: `SKU-${Math.random().toString(36).substring(2, 10)}`,
+      productName: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      subtotal: item.price * item.quantity,
+      image: item.image && item.image.startsWith('http')
+        ? item.image.replace(API_BASE_URL, '')
+        : item.image || ''
+    }));
+    const orderPayload = {
+      userId,
+      status: 'CREATED',
+      totalAmount,
+      currency: 'INR',
+      items: orderItems,
+      subtotal,
+      tax
+    };
+    (async () => {
+      const orderResponse = await addOrder(orderPayload);
+      clearCart();
+      if (orderResponse) {
+        navigate('/order-success', { state: { order: orderResponse } });
+      } else {
+        navigate('/order-success', { state: { orderId: 'ORD-UNKNOWN' } });
+      }
+    })();
   }
 
-  const total = getCartTotal() + Math.round(getCartTotal() * 0.18)
+  const subtotal = getCartTotal();
+  const tax = Math.round(subtotal * 0.18);
+  const total = subtotal + tax;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 px-3 sm:px-4 py-8 sm:py-12">

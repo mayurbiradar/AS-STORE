@@ -111,12 +111,22 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('accessToken') || '';
     if (token) {
-      userApi.getUsers(token).then(res => setUsers(res.data)).catch(() => {})
+      userApi.getUsers(token)
+        .then(res => setUsers(res.data))
+        .catch(err => {
+          console.error('Failed to load users:', err);
+        });
+    } else {
+      setUsers([]);
     }
-  }, [])
+  }, [localStorage.getItem('accessToken')])
   const [products, setProducts] = useState<Product[]>([])
   useEffect(() => {
-    productApi.getProducts().then(res => setProducts(res.data)).catch(() => {})
+    productApi.getProducts()
+      .then(res => setProducts(res.data))
+      .catch(err => {
+        console.error('Failed to load products:', err);
+      });
   }, [])
 
   const addUser = async (user: Omit<User, 'id' | 'joinDate'>) => {

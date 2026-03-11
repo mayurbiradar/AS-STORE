@@ -9,23 +9,36 @@ export interface CartItem {
   image: string
 }
 
+// Backend order response type
 export interface Order {
-  id: string
-  items: CartItem[]
-  total: number
-  date: string
-  status: 'confirmed' | 'shipped' | 'delivered'
+  id: string;
+  items: any[];
+  totalAmount: number;
+  createdAt: string;
+  status: string;
+  [key: string]: any;
+}
+
+// Order payload type for creation
+export interface OrderPayload {
+  userId: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  items: any[];
+  subtotal: number;
+  tax: number;
 }
 
 interface CartContextType {
-  cart: CartItem[]
-  addToCart: (product: Omit<CartItem, 'quantity'>) => void
-  removeFromCart: (id: number) => void
-  updateQuantity: (id: number, quantity: number) => void
-  clearCart: () => void
-  getCartTotal: () => number
-  orders: Order[]
-  addOrder: (order: Order) => void
+  cart: CartItem[];
+  addToCart: (product: Omit<CartItem, 'quantity'>) => void;
+  removeFromCart: (id: number) => void;
+  updateQuantity: (id: number, quantity: number) => void;
+  clearCart: () => void;
+  getCartTotal: () => number;
+  orders: Order[];
+  addOrder: (order: OrderPayload) => Promise<Order | null>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -36,7 +49,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('accessToken') || '';
     if (token) {
-      orderApi.getOrders(token).then(res => setOrders(res.data)).catch(() => {})
+      orderApi.getOrders(token)
+        .then(res => {
+          const ordersData = res.data;
+          setOrders(Array.isArray(ordersData) ? ordersData : Object.values(ordersData));
+        })
+        .catch(() => {});
     }
   }, [])
 
@@ -76,12 +94,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0)
   }
 
-  const addOrder = async (order: Order) => {
-    const token = localStorage.getItem('accessToken') || ''
+  const addOrder = async (order: OrderPayload) => {
+    const token = localStorage.getItem('accessToken') || '';
     try {
-      const res = await orderApi.createOrder(order, token)
-      setOrders(prev => [res.data, ...prev])
-    } catch {}
+      const res = await orderApi.createOrder(order, token);
+      setOrders(prev => [res.data, ...prev]);
+      return res.data as Order;
+    } catch {
+      return null;
+    }
   }
 
   return (
