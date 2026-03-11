@@ -46,17 +46,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken') || '';
-    if (token) {
-      orderApi.getOrders(token)
-        .then(res => {
-          const ordersData = res.data;
-          setOrders(Array.isArray(ordersData) ? ordersData : Object.values(ordersData));
-        })
-        .catch(() => {});
-    }
-  }, [])
+  // Removed orders API call on homepage load
 
   const addToCart = (product: Omit<CartItem, 'quantity'>) => {
     setCart(prev => {

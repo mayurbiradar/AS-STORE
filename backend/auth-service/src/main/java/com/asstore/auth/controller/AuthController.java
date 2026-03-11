@@ -71,4 +71,9 @@ public class AuthController {
         String userId = authService.getUserIdFromToken(token);
         return ResponseEntity.ok(authService.getUserInfo(userId));
     }
+    
+    @GetMapping("/users/count")
+    public ResponseEntity<Long> getUserCount() {
+        return ResponseEntity.ok(authService.getUserCount());
+    }
 }

@@ -1,7 +1,8 @@
 import LogoutButton from './LogoutButton';
+import { useUser } from '../context/UserContext';
 
 export default function UserMenu() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user } = useUser();
   if (!user || !user.email) return null;
   return (
     <div className="flex items-center gap-4">

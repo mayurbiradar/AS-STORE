@@ -1,3 +1,7 @@
+export const getTotalRevenue = (token?: string) =>
+  ORDER_API.get("/revenue", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+export const getOrderCount = (token?: string) =>
+  ORDER_API.get("/count", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
 
 import axios from "axios";
 import { API_BASE_URL } from "../constants";

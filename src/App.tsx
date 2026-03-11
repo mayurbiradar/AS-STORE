@@ -48,6 +48,7 @@ function App() {
                     <Route path="/admin/order/:orderId" element={<OrderDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
+                  <Route path="*" element={<Home />} />
                   </Routes>
                 </main>
                 <Footer />

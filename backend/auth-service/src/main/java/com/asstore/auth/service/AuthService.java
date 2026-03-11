@@ -156,4 +156,8 @@ public class AuthService {
         user.setUpdatedAt(Instant.now());
         userRepository.save(user);
     }
+
+	public Long getUserCount() {
+		return userRepository.count();
+	}
 }

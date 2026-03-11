@@ -7,27 +7,13 @@ import { useEffect } from 'react'
 export default function Header() {
   const { cart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, setUser } = useUser();
+  const { user, setUser, loading } = useUser();
   const isLoggedIn = !!user && !!user.email;
   const isAdmin = isLoggedIn && user.role === 'admin';
 
-  // Refresh user from localStorage after login
-  useEffect(() => {
-    const handleStorage = () => {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed.role === 'ROLE_ADMIN') parsed.role = 'admin';
-        else if (parsed.role === 'ROLE_USER') parsed.role = 'user';
-        setUser(parsed);
-      } else {
-        setUser(null);
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, [setUser]);
+  // No localStorage user logic; rely on context user for admin icon visibility
 
+  if (loading) return null;
   return (
     <header className="bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white shadow-lg sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">

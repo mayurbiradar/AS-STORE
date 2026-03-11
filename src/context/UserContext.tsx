@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { getMe } from '../api/authApi';
 
 interface User {
   firstName?: string;
@@ -23,23 +24,32 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const updateUser = () => {
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        const parsed = JSON.parse(stored);
+    const fetchUser = async () => {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      try {
+        // Set Authorization header for API instance if not already set
+        const { API } = await import('../api/authApi');
+        API.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        const res = await getMe();
+        const parsed = res.data;
         // Normalize role for UI
         if (parsed.role === 'ROLE_ADMIN') parsed.role = 'admin';
         else if (parsed.role === 'ROLE_USER') parsed.role = 'user';
         setUser(parsed);
-      } else {
+      } catch {
         setUser(null);
       }
+      setLoading(false);
     };
-    updateUser();
-    window.addEventListener('storage', updateUser);
-    return () => window.removeEventListener('storage', updateUser);
+    fetchUser();
   }, []);
 
   const logout = async () => {
@@ -52,7 +62,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout }}>
+    <UserContext.Provider value={{ user, setUser, logout, loading }}>
       {children}
     </UserContext.Provider>
   );

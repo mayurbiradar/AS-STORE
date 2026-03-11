@@ -1,44 +1,76 @@
-import { useState, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAdmin } from '../context/AdminContext'
-import { useCart } from '../context/CartContext'
-// import axios from 'axios'
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import * as productApi from '../api/productApi';
+import * as userApi from '../api/userApi';
+import * as orderApi from '../api/orderApi';
 import { API_BASE_URL } from '../constants';
-
 export default function AdminDashboard() {
-  const { users, products, addProduct, deleteProduct, deleteUser } = useAdmin()
-  const { orders } = useCart()
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'users' | 'orders'>('dashboard')
-  const [showAddProductForm, setShowAddProductForm] = useState(false)
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', image: '', rating: 4.5, stock: 10 })
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+      const [totalRevenue, setTotalRevenue] = useState(0);
+    const [userCount, setUserCount] = useState(0);
+    const [productCount, setProductCount] = useState(0);
+    const [orderCount, setOrderCount] = useState(0);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'users' | 'orders'>('dashboard');
+  const [showAddProductForm, setShowAddProductForm] = useState(false);
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', image: '', rating: 4.5, stock: 10 });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken') || '';
+    if (activeTab === 'users') {
+      userApi.getUsers(token)
+        .then(res => setUsers(res.data))
+        .catch(() => setUsers([]));
+    } else if (activeTab === 'products') {
+      productApi.getProducts()
+        .then(res => setProducts(res.data))
+        .catch(() => setProducts([]));
+    } else if (activeTab === 'orders') {
+      orderApi.getOrders(token)
+        .then(res => setOrders(res.data))
+        .catch(() => setOrders([]));
+    } else if (activeTab === 'dashboard') {
+      userApi.getUserCount(token).then(res => setUserCount(res.data)).catch(() => setUserCount(0));
+      productApi.getProductCount().then(res => setProductCount(res.data)).catch(() => setProductCount(0));
+      orderApi.getOrderCount(token).then(res => setOrderCount(res.data)).catch(() => setOrderCount(0));
+      orderApi.getTotalRevenue(token).then(res => setTotalRevenue(res.data)).catch(() => setTotalRevenue(0));
+    }
+  }, [activeTab]);
+
+  // ...existing code...
 
   const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setUploading(true)
+    e.preventDefault();
+    setUploading(true);
+    const token = localStorage.getItem('accessToken') || '';
     try {
-      await addProduct({
-        name: newProduct.name,
-        sku: `${newProduct.name}-${Date.now()}`,
-        description: '',
-        price: parseFloat(newProduct.price as string),
-        rating: newProduct.rating,
-        stock: newProduct.stock,
-        active: true,
-        imageFile: imageFile,
-      })
-      setNewProduct({ name: '', price: '', image: '', rating: 4.5, stock: 10 })
-      setImageFile(null)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      setShowAddProductForm(false)
+      const formData = new FormData();
+      formData.append('name', newProduct.name);
+      formData.append('price', parseFloat(newProduct.price as string).toString());
+      formData.append('stock', newProduct.stock.toString());
+      if (fileInputRef.current?.files && fileInputRef.current.files.length > 0) {
+        formData.append('file', fileInputRef.current.files[0]);
+      }
+      await productApi.createProductWithImage(formData, token);
+      setNewProduct({ name: '', price: '', image: '', rating: 4.5, stock: 10 });
+      setImageFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setShowAddProductForm(false);
+      // Refresh products if on products tab
+      if (activeTab === 'products') {
+        productApi.getProducts()
+          .then(res => setProducts(res.data))
+          .catch(() => setProducts([]));
+      }
     } catch {
-      alert('Product creation failed')
+      alert('Product creation failed');
     }
-    setUploading(false)
-  }
+    setUploading(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -118,34 +150,27 @@ export default function AdminDashboard() {
               className="bg-white rounded-lg shadow p-4 sm:p-6 border-l-4 border-blue-600 hover:shadow-lg hover:scale-105 transition cursor-pointer"
             >
               <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Users</p>
-              <p className="text-2xl sm:text-4xl font-bold text-blue-600">{users.length}</p>
-              <p className="text-gray-400 text-xs mt-1 sm:mt-2">{users.filter(u => u.role === 'customer').length} customers</p>
+              <p className="text-2xl sm:text-4xl font-bold text-blue-600">{userCount}</p>
             </div>
             <div 
               onClick={() => setActiveTab('products')}
               className="bg-white rounded-lg shadow p-4 sm:p-6 border-l-4 border-green-600 hover:shadow-lg hover:scale-105 transition cursor-pointer"
             >
               <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Products</p>
-              <p className="text-2xl sm:text-4xl font-bold text-green-600">{products.length}</p>
-              <p className="text-gray-400 text-xs mt-1 sm:mt-2">{products.reduce((sum, p) => sum + p.stock, 0)} in stock</p>
+              <p className="text-2xl sm:text-4xl font-bold text-green-600">{productCount}</p>
             </div>
             <div 
               onClick={() => setActiveTab('orders')}
               className="bg-white rounded-lg shadow p-4 sm:p-6 border-l-4 border-purple-600 hover:shadow-lg hover:scale-105 transition cursor-pointer"
             >
               <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Orders</p>
-              <p className="text-2xl sm:text-4xl font-bold text-purple-600">{orders.length}</p>
-              <p className="text-gray-400 text-xs mt-1 sm:mt-2">{orders.filter(o => o.status === 'delivered').length} delivered</p>
+              <p className="text-2xl sm:text-4xl font-bold text-purple-600">{orderCount}</p>
             </div>
             <div 
-              onClick={() => setActiveTab('orders')}
-              className="bg-white rounded-lg shadow p-4 sm:p-6 border-l-4 border-rose-600 hover:shadow-lg hover:scale-105 transition cursor-pointer"
+              className="bg-white rounded-lg shadow p-4 sm:p-6 border-l-4 border-yellow-600 hover:shadow-lg hover:scale-105 transition cursor-pointer"
             >
               <p className="text-gray-600 text-xs sm:text-sm mb-1 sm:mb-2">Total Revenue</p>
-              <p className="text-2xl sm:text-4xl font-bold text-rose-600">
-                ₹{orders.reduce((sum, o) => sum + o.total, 0).toLocaleString('en-IN')}
-              </p>
-              <p className="text-gray-400 text-xs mt-1 sm:mt-2">From {orders.length} orders</p>
+              <p className="text-2xl sm:text-4xl font-bold text-yellow-600">₹{totalRevenue.toLocaleString('en-IN')}</p>
             </div>
           </div>
         )}
@@ -187,36 +212,17 @@ export default function AdminDashboard() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <input
-                      type="url"
-                      placeholder="Image URL (optional)"
-                      value={newProduct.image}
-                      onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                      type="number"
+                      placeholder="Quantity"
+                      value={newProduct.stock}
+                      onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                       className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600"
+                      required
                     />
                     <input
                       type="file"
                       accept="image/*"
                       ref={fileInputRef}
-                      onChange={e => setImageFile(e.target.files?.[0] || null)}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600"
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <input
-                      type="number"
-                      placeholder="Rating (1-5)"
-                      step="0.1"
-                      min="1"
-                      max="5"
-                      value={newProduct.rating}
-                      onChange={(e) => setNewProduct({ ...newProduct, rating: parseFloat(e.target.value) })}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Stock"
-                      value={newProduct.stock}
-                      onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
                       className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600"
                       required
                     />
@@ -226,7 +232,7 @@ export default function AdminDashboard() {
                     className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg hover:shadow-lg transition"
                     disabled={uploading}
                   >
-                    {uploading ? 'Uploading Image...' : 'Add Product'}
+                    {uploading ? 'Uploading...' : 'Add Product'}
                   </button>
                 </form>
               </div>
@@ -240,13 +246,19 @@ export default function AdminDashboard() {
                   onClick={() => navigate(`/admin/product/${product.id}`)}
                   className="bg-white rounded-lg shadow hover:shadow-lg transition p-6 flex gap-6 cursor-pointer border-l-4 border-indigo-600"
                 >
-                  <img src={product.image.startsWith('/images/') ? `${API_BASE_URL}${product.image}` : product.image} alt={product.name} className="w-24 h-24 object-cover rounded-lg" />
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    {product.image ? (
+                      <img src={product.image.startsWith('/images/') ? `${API_BASE_URL}${product.image}` : product.image} alt={product.name} className="w-24 h-24 object-cover rounded-lg" />
+                    ) : (
+                      <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">No Image</div>
+                    )}
+                  </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
                     <p className="text-lg font-bold text-indigo-600">₹{product.price.toLocaleString('en-IN')}</p>
                     <div className="flex gap-4 mt-2 text-sm text-gray-600">
-                      <span>⭐ {product.rating}</span>
-                      <span>📦 {product.stock} in stock</span>
+                      <span>Qty: {product.stock ?? 0}</span>
+                      <span>{product.active ? 'Active' : 'Inactive'}</span>
                     </div>
                   </div>
                   <div className="flex gap-2 flex-col h-fit">
@@ -260,9 +272,13 @@ export default function AdminDashboard() {
                       Edit
                     </button>
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        deleteProduct(product.id)
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const token = localStorage.getItem('accessToken') || '';
+                        await productApi.deleteProduct(product.id, token);
+                        productApi.getProducts()
+                          .then(res => setProducts(res.data))
+                          .catch(() => setProducts([]));
                       }}
                       className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition"
                     >
@@ -328,7 +344,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                deleteUser(user.id)
+                                userApi.deleteUser(user.id)
                               }}
                               className="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition text-sm"
                             >

@@ -20,6 +20,7 @@ public class SecurityConfig {
     	http.csrf(AbstractHttpConfigurer::disable)
     	.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
+                 .requestMatchers("/api/orders/revenue","/api/orders/count").hasRole("ADMIN")	
                 .requestMatchers("/api/orders/**").authenticated()
                 .anyRequest().permitAll()
             );

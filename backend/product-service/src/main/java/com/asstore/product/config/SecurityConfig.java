@@ -22,7 +22,7 @@ public class SecurityConfig {
         	.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/images/**").permitAll()
-                .requestMatchers("/api/products/create-with-image").hasRole("ADMIN")
+                .requestMatchers("/api/products/create-with-image","/api/products/count").hasRole("ADMIN")
                 .requestMatchers("/api/products/**").permitAll()
                 .anyRequest().authenticated()
             );

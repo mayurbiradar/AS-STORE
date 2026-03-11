@@ -82,7 +82,6 @@ export default function Checkout() {
               {/* Billing Address */}
               <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Billing Address</h2>
-                
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                   <input
                     type="text"
@@ -103,7 +102,6 @@ export default function Checkout() {
                     required
                   />
                 </div>
-
                 <input
                   type="email"
                   name="email"
@@ -113,7 +111,6 @@ export default function Checkout() {
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 mb-4 text-sm sm:text-base"
                   required
                 />
-
                 <input
                   type="tel"
                   name="phone"
@@ -123,7 +120,6 @@ export default function Checkout() {
                   className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 mb-4 text-sm sm:text-base"
                   required
                 />
-
                 <input
                   type="text"
                   name="address"
@@ -133,7 +129,6 @@ export default function Checkout() {
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 mb-4"
                   required
                 />
-
                 <div className="grid md:grid-cols-3 gap-4">
                   <input
                     type="text"
@@ -159,45 +154,6 @@ export default function Checkout() {
                     placeholder="Pincode"
                     value={formData.pincode}
                     onChange={handleChange}
-                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Payment Information */}
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Payment Information</h2>
-                
-                <input
-                  type="text"
-                  name="cardNumber"
-                  placeholder="Card Number"
-                  value={formData.cardNumber}
-                  onChange={handleChange}
-                  maxLength={16}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600 mb-4"
-                  required
-                />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    name="expiryDate"
-                    placeholder="MM/YY"
-                    value={formData.expiryDate}
-                    onChange={handleChange}
-                    maxLength={5}
-                    className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                    required
-                  />
-                  <input
-                    type="text"
-                    name="cvv"
-                    placeholder="CVV"
-                    value={formData.cvv}
-                    onChange={handleChange}
-                    maxLength={3}
                     className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
                     required
                   />

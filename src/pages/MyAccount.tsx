@@ -83,11 +83,6 @@ export default function MyAccount() {
                     <p className="text-gray-600 text-sm mb-1">Phone</p>
                     <p className="text-lg font-bold text-gray-800">{user.phone}</p>
                   </div>
-                  <div className="border-t border-gray-200 pt-6">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">Shipping Address</h3>
-                    <p className="text-gray-700 mb-2">{user.address}</p>
-                    <p className="text-gray-700">{user.city}, {user.state} - {user.pincode}</p>
-                  </div>
                 </div>
                 <button
                   onClick={() => setActiveTab('edit')}
@@ -136,40 +131,6 @@ export default function MyAccount() {
                     onChange={handleEditChange}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
                   />
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Address"
-                    value={editData.address || ''}
-                    onChange={handleEditChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                  />
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <input
-                      type="text"
-                      name="city"
-                      placeholder="City"
-                      value={editData.city || ''}
-                      onChange={handleEditChange}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                    />
-                    <input
-                      type="text"
-                      name="state"
-                      placeholder="State"
-                      value={editData.state || ''}
-                      onChange={handleEditChange}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                    />
-                    <input
-                      type="text"
-                      name="pincode"
-                      placeholder="Pincode"
-                      value={editData.pincode || ''}
-                      onChange={handleEditChange}
-                      className="px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-purple-600"
-                    />
-                  </div>
                 </div>
                 <div className="flex gap-4 mt-8">
                   <button

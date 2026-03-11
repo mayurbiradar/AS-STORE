@@ -12,6 +12,8 @@ export async function handleTokenRefresh() {
   }
 }
 
+
+export async function handleLogout() {
   const refresh = localStorage.getItem('refreshToken');
   if (!refresh) return;
   try {

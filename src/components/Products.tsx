@@ -14,7 +14,14 @@ export default function Products() {
 
   useEffect(() => {
     getProducts().then(res => {
-      setProducts(res.data);
+      const data = res.data;
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else if (data && Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else {
+        setProducts([]);
+      }
     });
   }, []);
 

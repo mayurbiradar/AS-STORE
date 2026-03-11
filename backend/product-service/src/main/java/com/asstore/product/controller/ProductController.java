@@ -10,10 +10,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,12 +43,8 @@ public class ProductController {
     @PostMapping("/create-with-image")
     public ResponseEntity<Product> createWithImage(
         @RequestParam("name") String name,
-        @RequestParam("sku") String sku,
-        @RequestParam("description") String description,
         @RequestParam("price") Long price,
-        @RequestParam(value = "rating", required = false) Double rating,
         @RequestParam(value = "stock", required = false) Integer stock,
-        @RequestParam(value = "active", required = false) Boolean active,
         @RequestParam("file") MultipartFile file
     ) throws IOException {
         String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
@@ -58,16 +55,31 @@ public class ProductController {
 
         Product p = new Product();
         p.setName(name);
-        p.setSku(sku);
-        p.setDescription(description);
         p.setPrice(price);
         p.setImage(imageUrl);
-        if (rating != null) p.setRating(rating);
+        double min = 4.5;
+        double max = 5.0;
+        // Generate a random double in the range [4.5, 5.0)
+        double randomValue = min + (Math.random() * (max - min));
+        double roundedValue2 = Math.round(randomValue * 10.0) / 10.0;
+        p.setRating(roundedValue2);
         if (stock != null) p.setStock(stock);
-        if (active != null) p.setActive(active);
+        p.setActive(false);
         p.setCreatedAt(java.time.Instant.now());
         p.setUpdatedAt(java.time.Instant.now());
         Product saved = repo.save(p);
         return ResponseEntity.ok(saved);
+    }
+    
+    @GetMapping("/count")
+    public ResponseEntity<Long> getProductCount() {
+        return ResponseEntity.ok(repo.count());
+    }
+    
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+        repo.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

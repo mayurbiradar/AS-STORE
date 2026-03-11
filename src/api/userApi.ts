@@ -1,3 +1,5 @@
+export const getUserCount = (token?: string) =>
+  USER_API.get("/users/count", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
 import axios from "axios";
 import { API_BASE_URL } from "../constants";
 

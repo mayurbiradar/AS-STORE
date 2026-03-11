@@ -108,26 +108,7 @@ const SAMPLE_PRODUCTS: Product[] = [
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([])
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken') || '';
-    if (token) {
-      userApi.getUsers(token)
-        .then(res => setUsers(res.data))
-        .catch(err => {
-          console.error('Failed to load users:', err);
-        });
-    } else {
-      setUsers([]);
-    }
-  }, [localStorage.getItem('accessToken')])
   const [products, setProducts] = useState<Product[]>([])
-  useEffect(() => {
-    productApi.getProducts()
-      .then(res => setProducts(res.data))
-      .catch(err => {
-        console.error('Failed to load products:', err);
-      });
-  }, [])
 
   const addUser = async (user: Omit<User, 'id' | 'joinDate'>) => {
     const token = localStorage.getItem('accessToken') || ''

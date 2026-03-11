@@ -11,11 +11,7 @@ export default function Home() {
   const { addToast } = useToast()
   const location = useLocation();
 
-  useEffect(() => {
-    getProducts().then(res => {
-      setProducts(res.data)
-    })
-  }, [])
+  // Removed products API call on homepage load
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });

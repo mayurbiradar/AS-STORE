@@ -1,4 +1,5 @@
 
+
 import axios from "axios";
 import { API_BASE_URL } from "../constants";
 
@@ -72,4 +73,9 @@ export const refreshToken = (refreshToken: string) => {
 
 export const logoutUser = (refreshToken: string) => {
   return API.post("/logout", refreshToken );
+};
+
+// Get current user info
+export const getMe = () => {
+  return API.get('/me');
 };
