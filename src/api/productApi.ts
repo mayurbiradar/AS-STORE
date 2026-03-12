@@ -1,4 +1,4 @@
-export const getProductCount = () => PRODUCT_API.get("/count");
+export const getProductCount = (token?: string) => PRODUCT_API.get("/count", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
 
 import axios from "axios";
 import { API_BASE_URL } from "../constants";

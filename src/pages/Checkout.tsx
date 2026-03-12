@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { API_BASE_URL } from "../constants";
@@ -6,7 +6,17 @@ import { API_BASE_URL } from "../constants";
 export default function Checkout() {
   const navigate = useNavigate()
   const { cart, getCartTotal, clearCart, addOrder } = useCart()
-  
+
+  useEffect(() => {
+    if (!cart || cart.length === 0) {
+      navigate('/collection');
+    }
+  }, [cart, navigate]);
+
+  if (!cart || cart.length === 0) {
+    return null;
+  }
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -16,9 +26,6 @@ export default function Checkout() {
     city: '',
     state: '',
     pincode: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +51,11 @@ export default function Checkout() {
         ? item.image.replace(API_BASE_URL, '')
         : item.image || ''
     }));
+    const addressPayload = {
+      ...formData,
+      userId,
+      isDeleted: false
+    };
     const orderPayload = {
       userId,
       status: 'CREATED',
@@ -51,7 +63,8 @@ export default function Checkout() {
       currency: 'INR',
       items: orderItems,
       subtotal,
-      tax
+      tax,
+      address: addressPayload
     };
     (async () => {
       const orderResponse = await addOrder(orderPayload);
@@ -76,11 +89,11 @@ export default function Checkout() {
         </h1>
 
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Checkout Form */}
+          {/* Left: Billing Address (2/3) */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Billing Address */}
-              <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+              <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 mb-6">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Billing Address</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                   <input
@@ -158,22 +171,25 @@ export default function Checkout() {
                     required
                   />
                 </div>
+                {/* Payment Method Info above Place Order */}
+                <div className="bg-gray-50 rounded-lg p-4 my-6">
+                  <h2 className="text-lg font-bold text-gray-800 mb-2">Payment Method</h2>
+                  <p className="text-base text-gray-700">Only <span className="font-bold text-purple-600">Cash on Delivery (COD)</span> is available for this order.</p>
+                </div>
+                {/* Place Order button should NOT be inside another button */}
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:shadow-lg transition duration-200 mt-2"
+                >
+                  Place Order
+                </button>
               </div>
-
-              <button
-                type="submit"
-                className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-lg hover:shadow-lg transition duration-200"
-              >
-                Place Order
-              </button>
             </form>
           </div>
-
-          {/* Order Summary */}
+          {/* Right: Order Summary (1/3) */}
           <div>
             <div className="bg-white rounded-xl shadow-lg p-6 sticky top-20">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h2>
-
               <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
                 {cart.map(item => (
                   <div key={item.id} className="pb-4 border-b border-gray-200">
@@ -187,7 +203,6 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
-
               <div className="border-t border-gray-200 pt-4 space-y-3 mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal</span>
@@ -202,7 +217,6 @@ export default function Checkout() {
                   <span className="font-bold">₹{Math.round(getCartTotal() * 0.18).toLocaleString('en-IN')}</span>
                 </div>
               </div>
-
               <div className="border-t border-gray-200 pt-4 flex justify-between">
                 <span className="text-lg font-bold text-gray-800">Total</span>
                 <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">

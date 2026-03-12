@@ -1,17 +1,19 @@
 package com.asstore.order.domain;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,26 +23,30 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Order {
-    @Id
-    @GeneratedValue
-    private UUID id;
+	@Id
+	@GeneratedValue
+	private UUID id;
 
-    @Column(nullable = false)
-    private UUID userId;
+	@Column(nullable = false)
+	private UUID userId;
 
-    @Column(nullable = false)
-    private String status = "PLACED"; // PLACED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
+	@OneToOne
+	@JoinColumn(name = "address_id", nullable = false)
+	private Address address;
 
-    @Column(nullable = false)
-    private Long totalAmount = 0L; // in paise/cents
+	@Column(nullable = false)
+	private String status = "PLACED"; // PLACED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED
 
-    private String currency = "INR";
+	@Column(nullable = false)
+	private Long totalAmount = 0L; // in paise/cents
 
-    private Instant createdAt = Instant.now();
+	private String currency = "INR";
 
-    private Instant updatedAt = Instant.now();
+	private Instant createdAt = Instant.now();
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
-    private Set<OrderItem> items = new HashSet<>();
+	private Instant updatedAt = Instant.now();
+
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private Set<OrderItem> items = new HashSet<>();
 }

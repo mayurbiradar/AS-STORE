@@ -20,14 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 import com.asstore.order.domain.Order;
 import com.asstore.order.domain.OrderItem;
 import com.asstore.order.repository.OrderRepository;
+import com.asstore.order.domain.Address;
+import com.asstore.order.service.OrderService;
 import com.asstore.order.service.JwtService;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
+      
     private final OrderRepository repo;
+    private final OrderService orderService;
 
-    public OrderController(OrderRepository repo) { this.repo = repo; }
+    public OrderController(OrderRepository repo, OrderService orderService) {
+        this.repo = repo;
+        this.orderService = orderService;
+    }
 
     @Autowired
     private JwtService jwtService;
@@ -44,14 +51,18 @@ public class OrderController {
 
     @PostMapping
     public Order create(@RequestBody Order order, @RequestHeader("Authorization") String authHeader) {
-    	 // Extract JWT from header
+        // Extract JWT from header
         String token = authHeader.replace("Bearer ", "");
         String userId = jwtService.getUserId(token);
         order.setUserId(UUID.fromString(userId));
         for (OrderItem item : order.getItems()) {
             item.setOrder(order);
         }
-    	return repo.save(order); 
+        order.setStatus("PLACED");
+        // Assume address is included in order object as 'address'
+        Address address = order.getAddress();
+        address.setUserId(UUID.fromString(userId));
+        return orderService.createOrder(order, address);
     }
 
     @PutMapping("/{id}")
@@ -81,5 +92,12 @@ public class OrderController {
     public ResponseEntity<Double> getTotalRevenue() {
         Double revenue = repo.getTotalRevenue();
         return ResponseEntity.ok(revenue != null ? revenue : 0.0);
+    }
+    
+    @GetMapping("/my")
+    public List<Order> getMyOrders(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String userId = jwtService.getUserId(token);
+        return repo.findByUserId(java.util.UUID.fromString(userId));
     }
 }

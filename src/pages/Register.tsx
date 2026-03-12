@@ -68,7 +68,7 @@ export default function Register() {
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Create Account
             </h2>
-            <p className="text-gray-600">Join Akshata's Jewel Box and start shopping</p>
+            <p className="text-gray-600">Join AS Store and start shopping</p>
           </div>
 
           {/* Form */}

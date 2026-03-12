@@ -72,12 +72,11 @@ export default function Home() {
             Discover our exquisite collection of handcrafted jewelry that celebrates your unique elegance
           </p>
           <div className="flex gap-3 sm:gap-4 justify-center flex-wrap">
-            <button className="px-6 sm:px-8 py-2 sm:py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-lg hover:shadow-2xl transform hover:scale-110 transition duration-200 text-sm sm:text-base lg:text-lg">
-              Shop Now
-            </button>
-            <button className="px-6 sm:px-8 py-2 sm:py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-purple-900 transition duration-200 text-sm sm:text-base lg:text-lg">
-              Explore Collection
-            </button>
+            <Link to="/collection">
+              <button className="px-6 sm:px-8 py-2 sm:py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-lg hover:shadow-2xl transform hover:scale-110 transition duration-200 text-sm sm:text-base lg:text-lg">
+                Shop Now
+              </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -160,14 +159,10 @@ export default function Home() {
             Browse our complete collection or get personalized styling advice from our experts
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <button className="px-8 py-4 bg-white text-purple-600 font-bold rounded-lg hover:shadow-lg transition duration-200">
-              Start Shopping
-            </button>
-            <Link
-              to="/login"
-              className="px-8 py-4 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-purple-600 transition duration-200"
-            >
-              Sign In
+            <Link to="/collection">
+              <button className="px-8 py-4 bg-white text-purple-600 font-bold rounded-lg hover:shadow-lg transition duration-200">
+                Start Shopping
+              </button>
             </Link>
           </div>
         </div>

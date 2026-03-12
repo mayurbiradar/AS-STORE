@@ -1,3 +1,4 @@
+export const getMyOrders = (token?: string) => ORDER_API.get("/my", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
 export const getTotalRevenue = (token?: string) =>
   ORDER_API.get("/revenue", token ? { headers: { Authorization: `Bearer ${token}` } } : {});
 export const getOrderCount = (token?: string) =>

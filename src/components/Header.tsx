@@ -8,8 +8,8 @@ export default function Header() {
   const { cart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, setUser, loading } = useUser();
-  const isLoggedIn = !!user && !!user.email;
-  const isAdmin = isLoggedIn && user.role === 'admin';
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const isAdmin = isLoggedIn && user && user.role === 'admin';
 
   // No localStorage user logic; rely on context user for admin icon visibility
 
@@ -21,11 +21,9 @@ export default function Header() {
           {/* Logo */}
             <Link to="/" className="flex items-center space-x-1 sm:space-x-2 group" onClick={() => { window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); }}>
             <div className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-pink-400 to-yellow-300 bg-clip-text text-transparent truncate">
-              💍 AS Jewel
+              💍 AS Store
             </div>
-            <div className="hidden sm:block text-lg sm:text-3xl font-bold bg-gradient-to-r from-pink-400 to-yellow-300 bg-clip-text text-transparent">
-              Box
-            </div>
+            {/* Removed 'Box' for 'AS Store' branding */}
           </Link>
 
           {/* Center Navigation - Hidden on mobile */}
@@ -46,6 +44,14 @@ export default function Header() {
             <Link to="/contact" className="hover:text-pink-300 transition duration-200 font-medium text-sm lg:text-base" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })}>
               Contact
             </Link>
+            {isLoggedIn && (
+              <Link
+                to="/orders"
+                className="hover:text-pink-300 transition duration-200 font-medium text-sm lg:text-base"
+              >
+                My Orders
+              </Link>
+            )}
           </div>
 
           {/* Right Side - Icons and Buttons */}
@@ -144,6 +150,12 @@ export default function Header() {
               onClick={() => { setIsMenuOpen(false); window.scrollTo({ top: 0, left: 0, behavior: 'smooth' }); }}
             >
               ✉️ Contact
+            </Link>
+            <Link
+              to="/orders"
+              className="block px-3 py-2 bg-yellow-500 text-gray-900 rounded-lg font-bold hover:bg-yellow-600 transition text-sm"
+            >
+              My Orders
             </Link>
             <div className="border-t border-purple-700 pt-2 mt-2 space-y-2">
               <Link

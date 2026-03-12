@@ -19,7 +19,19 @@ export default function Login() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   }, []);
-  if (user && user.email) return <Navigate to="/" />;
+  const searchParams = new URLSearchParams(window.location.search);
+  const redirect = searchParams.get('redirect');
+
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRedirectAfterLogin(redirect);
+  }, []);
+
+  if (user && user.email) {
+    if (redirectAfterLogin === 'checkout') return <Navigate to="/cart" />;
+    return <Navigate to="/" />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,16 +46,13 @@ export default function Login() {
       const userRes = await axios.get(`${API_BASE_URL}/api/auth/me`, {
         headers: { Authorization: `Bearer ${response.data.accessToken}` }
       })
-      localStorage.setItem('user', JSON.stringify(userRes.data))
-      if (userRes.data.id) {
-        localStorage.setItem('userId', userRes.data.id);
-      }
       // Normalize role for UI
       let userObj = userRes.data;
       if (userObj.role === 'ROLE_ADMIN') userObj.role = 'admin';
       else if (userObj.role === 'ROLE_USER') userObj.role = 'user';
       setUser(userObj);
-      navigate('/')
+      if (redirectAfterLogin === 'checkout') navigate('/cart');
+      else navigate('/')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed')
     } finally {
@@ -60,7 +69,7 @@ export default function Login() {
             <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Welcome Back
             </h2>
-            <p className="text-gray-600">Sign in to your Akshata's Jewel Box account</p>
+            <p className="text-gray-600">Sign in to your AS Store account</p>
           </div>
 
           {/* Form */}

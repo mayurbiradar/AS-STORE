@@ -20,6 +20,11 @@ import AdminDashboard from './pages/AdminDashboard'
 import UserDetail from './pages/UserDetail'
 import ProductDetail from './pages/ProductDetail'
 import OrderDetail from './pages/OrderDetail'
+import FAQ from './pages/FAQ';
+import Support from './pages/Support';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
+import ShippingPolicy from './pages/ShippingPolicy';
 import './App.css'
 
 function App() {
@@ -48,7 +53,12 @@ function App() {
                     <Route path="/admin/order/:orderId" element={<OrderDetail />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact" element={<Contact />} />
-                  <Route path="*" element={<Home />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+                    <Route path="/termsconditions" element={<TermsConditions />} />
+                    <Route path="/shippingpolicy" element={<ShippingPolicy />} />
+                    <Route path="*" element={<Home />} />
                   </Routes>
                 </main>
                 <Footer />

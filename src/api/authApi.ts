@@ -76,6 +76,6 @@ export const logoutUser = (refreshToken: string) => {
 };
 
 // Get current user info
-export const getMe = () => {
-  return API.get('/me');
-};
+export const getMe = (token?: string) => {
+  return API.get('/me', token ? { headers: { Authorization: `Bearer ${token}` } } : {});
+}

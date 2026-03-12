@@ -92,18 +92,18 @@ export default function OrderSuccess() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
             <Link
-              to="/orders"
+              to="/collection"
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-lg hover:shadow-lg transition duration-200"
             >
-              View My Orders
+              Continue Shopping
             </Link>
             <Link
-              to="/"
-              className="px-8 py-4 border-2 border-gray-300 text-gray-800 font-bold rounded-lg hover:bg-gray-50 transition duration-200"
+              to="/orders"
+              className="px-8 py-4 border-2 border-purple-600 text-purple-600 font-bold rounded-lg hover:bg-purple-50 transition duration-200"
             >
-              Continue Shopping
+              View My Orders
             </Link>
           </div>
         </div>
