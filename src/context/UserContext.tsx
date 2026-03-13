@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { getMe } from '../api/authApi';
 
 interface User {
+  id?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -24,14 +25,12 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUser = async () => {
       const accessToken = localStorage.getItem('accessToken');
       if (!accessToken) {
         setUser(null);
-        setLoading(false);
         return;
       }
       try {
@@ -47,7 +46,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
       } catch {
         setUser(null);
       }
-      setLoading(false);
     };
     fetchUser();
   }, []);
@@ -62,7 +60,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading }}>
+    <UserContext.Provider value={{ user, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );

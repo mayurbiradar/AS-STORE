@@ -2,18 +2,16 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useState } from 'react'
 import { useUser } from '../context/UserContext'
-import { useEffect } from 'react'
 
 export default function Header() {
   const { cart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, setUser, loading } = useUser();
+  const { user } = useUser();
   const isLoggedIn = !!localStorage.getItem('accessToken');
   const isAdmin = isLoggedIn && user && user.role === 'admin';
 
   // No localStorage user logic; rely on context user for admin icon visibility
 
-  if (loading) return null;
   return (
     <header className="bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 text-white shadow-lg sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">

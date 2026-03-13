@@ -23,6 +23,7 @@ import com.asstore.order.repository.OrderRepository;
 import com.asstore.order.domain.Address;
 import com.asstore.order.service.OrderService;
 import com.asstore.order.service.JwtService;
+import com.asstore.order.repository.AddressRepository;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -30,10 +31,12 @@ public class OrderController {
       
     private final OrderRepository repo;
     private final OrderService orderService;
+    private final AddressRepository addressRepository;
 
-    public OrderController(OrderRepository repo, OrderService orderService) {
+    public OrderController(OrderRepository repo, OrderService orderService, AddressRepository addressRepository) {
         this.repo = repo;
         this.orderService = orderService;
+        this.addressRepository = addressRepository;
     }
 
     @Autowired
@@ -44,8 +47,8 @@ public class OrderController {
     public List<Order> list() { return repo.findAll(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> get(@PathVariable UUID id) {
-        Optional<Order> order = repo.findById(id);
+    public ResponseEntity<Order> get(@PathVariable String id) {
+        Optional<Order> order = repo.findById(UUID.fromString(id));
         return order.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -99,5 +102,71 @@ public class OrderController {
         String token = authHeader.replace("Bearer ", "");
         String userId = jwtService.getUserId(token);
         return repo.findByUserId(java.util.UUID.fromString(userId));
+    }
+
+    // Address Management Endpoints
+    @GetMapping("/users/{userId}/addresses")
+    public List<Address> getUserAddresses(@PathVariable String userId, @RequestHeader("Authorization") String authHeader) {
+        // Verify the user is requesting their own addresses
+        String token = authHeader.replace("Bearer ", "");
+        String tokenUserId = jwtService.getUserId(token);
+        if (!tokenUserId.equals(userId)) {
+            throw new RuntimeException("Unauthorized access to addresses");
+        }
+        return addressRepository.findByUserIdAndIsDeleted(UUID.fromString(userId),false);
+    }
+
+    @PostMapping("/users/{userId}/addresses")
+    public Address createAddress(@PathVariable String userId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
+        // Verify the user is creating address for themselves
+        String token = authHeader.replace("Bearer ", "");
+        String tokenUserId = jwtService.getUserId(token);
+        if (!tokenUserId.equals(userId)) {
+            throw new RuntimeException("Unauthorized access to create address");
+        }
+        address.setUserId(UUID.fromString(userId));
+        address.setDeleted(false);
+        return addressRepository.save(address);
+    }
+
+    @PutMapping("/users/{userId}/addresses/{addressId}")
+    public ResponseEntity<Address> updateAddress(@PathVariable String userId, @PathVariable UUID addressId, @RequestBody Address address, @RequestHeader("Authorization") String authHeader) {
+        // Verify the user owns this address
+        String token = authHeader.replace("Bearer ", "");
+        String tokenUserId = jwtService.getUserId(token);
+        if (!tokenUserId.equals(userId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Optional<Address> existingAddress = addressRepository.findById(addressId);
+        if (existingAddress.isEmpty() || !existingAddress.get().getUserId().equals(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
+        address.setId(addressId);
+        address.setUserId(UUID.fromString(userId));
+        address.setDeleted(false);
+        return ResponseEntity.ok(addressRepository.save(address));
+    }
+
+    @DeleteMapping("/users/{userId}/addresses/{addressId}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable String userId, @PathVariable UUID addressId, @RequestHeader("Authorization") String authHeader) {
+        // Verify the user owns this address
+        String token = authHeader.replace("Bearer ", "");
+        String tokenUserId = jwtService.getUserId(token);
+        if (!tokenUserId.equals(userId)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        Optional<Address> address = addressRepository.findById(addressId);
+        if (address.isEmpty() || !address.get().getUserId().equals(UUID.fromString(userId))) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Soft delete
+        Address addr = address.get();
+        addr.setDeleted(true);
+        addressRepository.save(addr);
+        return ResponseEntity.noContent().build();
     }
 }

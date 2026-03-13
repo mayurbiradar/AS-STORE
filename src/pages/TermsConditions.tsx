@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function TermsConditions() {
   return (
     <div className="max-w-3xl mx-auto py-16 px-4">

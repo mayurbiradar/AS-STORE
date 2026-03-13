@@ -46,7 +46,7 @@ export default function OrderSuccess() {
                   <p className="font-bold text-green-600 text-2xl">₹{order.totalAmount?.toLocaleString('en-IN')}</p>
                   <p className="text-gray-600 text-sm mt-2">Items</p>
                   <ul className="mt-2 space-y-2">
-                    {order.items?.map(item => (
+                    {order.items?.map((item: any) => (
                       <li key={item.id} className="flex items-center gap-3">
                         {item.image && <img src={item.image.startsWith('/images/') ? `${API_BASE_URL}${item.image}` : item.image} alt={item.productName} className="w-10 h-10 object-cover rounded" />}
                         <span className="font-bold">{item.productName}</span>

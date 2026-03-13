@@ -29,7 +29,9 @@ export const getUsers = async (token?: string) => {
         try {
           const { data } = await import('./authApi').then(mod => mod.refreshToken(refreshTokenValue!));
           accessToken = data.accessToken;
-          localStorage.setItem('accessToken', accessToken);
+          if (accessToken) {
+            localStorage.setItem('accessToken', accessToken);
+          }
           attempts++;
           continue;
         } catch (refreshError) {

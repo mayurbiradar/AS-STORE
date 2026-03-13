@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import * as productApi from '../api/productApi'
 import * as userApi from '../api/userApi'
 
@@ -11,6 +11,7 @@ export interface User {
   role: 'customer' | 'admin'
   joinDate: string
   orders: number
+  enabled?: boolean
 }
 
 export interface Product {
@@ -36,75 +37,6 @@ interface AdminContextType {
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined)
-
-// Sample data
-const SAMPLE_USERS: User[] = [
-  {
-    id: 'user-1',
-    firstName: 'Akshata',
-    lastName: 'Sharma',
-    email: 'akshata@example.com',
-    phone: '+91-9876543210',
-    role: 'customer',
-    joinDate: '2026-01-15',
-    orders: 3,
-  },
-  {
-    id: 'user-2',
-    firstName: 'Priya',
-    lastName: 'Kumar',
-    email: 'priya@example.com',
-    phone: '+91-9123456789',
-    role: 'customer',
-    joinDate: '2026-02-20',
-    orders: 1,
-  },
-  {
-    id: 'user-3',
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@akshatasjewelbox.com',
-    phone: '+91-1234567890',
-    role: 'admin',
-    joinDate: '2025-12-01',
-    orders: 0,
-  },
-]
-
-const SAMPLE_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: 'Diamond Elegance Necklace',
-    price: 207500,
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500&h=500&fit=crop',
-    rating: 4.8,
-    stock: 15,
-  },
-  {
-    id: 2,
-    name: 'Sapphire Dream Ring',
-    price: 157500,
-    image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&h=500&fit=crop',
-    rating: 4.9,
-    stock: 8,
-  },
-  {
-    id: 3,
-    name: 'Pearl Luxury Bracelet',
-    price: 107500,
-    image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500&h=500&fit=crop',
-    rating: 4.7,
-    stock: 12,
-  },
-  {
-    id: 4,
-    name: 'Emerald Statement Earrings',
-    price: 132500,
-    image: 'https://media.istockphoto.com/id/954391364/photo/two-golden-sapphire-earrings-with-small-diamonds.jpg?s=612x612&w=0&k=20&c=j4uJwr0yH3fiA8jxBxfnRqpZILXSSN0vyCqC22UYZb0=',
-    rating: 4.8,
-    stock: 10,
-  },
-]
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [users, setUsers] = useState<User[]>([])

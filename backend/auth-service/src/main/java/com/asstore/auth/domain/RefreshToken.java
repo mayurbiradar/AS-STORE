@@ -24,6 +24,4 @@ public class RefreshToken {
     private Instant issuedAt = Instant.now();
 
     private Instant expiresAt;
-
-    private boolean revoked = false;
 }

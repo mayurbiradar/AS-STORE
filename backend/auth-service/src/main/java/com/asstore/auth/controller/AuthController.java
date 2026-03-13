@@ -36,7 +36,7 @@ public class AuthController {
     }
     
     @PutMapping("/users/{id}")
-    // @PreAuthorize("hasRole('ADMIN')") // Uncomment if using method security
+    @PreAuthorize("hasRole('ADMIN')") // Uncomment if using method security
     public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody Map<String, Object> updates) {
         authService.updateUser(id, updates);
         return ResponseEntity.ok().build();
@@ -75,5 +75,11 @@ public class AuthController {
     @GetMapping("/users/count")
     public ResponseEntity<Long> getUserCount() {
         return ResponseEntity.ok(authService.getUserCount());
+    }
+    
+    @PutMapping("/users/update/{id}")
+    public ResponseEntity<?> editUser(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+        authService.editUser(id, updates);
+        return ResponseEntity.ok().build();
     }
 }

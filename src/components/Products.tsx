@@ -6,9 +6,17 @@ import { API_BASE_URL } from '../constants';
 
 import { getProducts } from '../api/productApi';
 
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  description?: string;
+}
+
 export default function Products() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const { cart, addToCart, updateQuantity } = useCart();
   const { addToast } = useToast();
 
@@ -29,12 +37,12 @@ export default function Products() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: Product) => {
     addToCart({ id: product.id, name: product.name, price: product.price, image: product.image });
     addToast(`${product.name} added to cart! 🎁`, 'success', 2500);
   };
 
-  const getProductQuantity = (productId) => {
+  const getProductQuantity = (productId: number) => {
     return cart.find(item => item.id === productId)?.quantity || 0;
   };
 
@@ -81,7 +89,7 @@ export default function Products() {
                     </span>
                     <div className="flex items-center">
                       <span className="text-yellow-400 text-lg">⭐</span>
-                      <span className="ml-1 text-gray-700 font-semibold text-sm">{product.rating}</span>
+                      <span className="ml-1 text-gray-700 font-semibold text-sm">4.5</span>
                     </div>
                   </div>
                   <button

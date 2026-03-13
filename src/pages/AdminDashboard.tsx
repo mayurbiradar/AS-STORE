@@ -58,6 +58,9 @@ import { checkAdminAndProceed } from '../utils/authUtils';
 
 export default function AdminDashboard() {
       const [totalRevenue, setTotalRevenue] = useState<number>(0);
+      const [editingUserId, setEditingUserId] = useState<string | null>(null);
+      const [editUserData, setEditUserData] = useState<any>({});
+      const [savingUserId, setSavingUserId] = useState<string | null>(null);
       const [userCount, setUserCount] = useState<number>(0);
       const [productCount, setProductCount] = useState<number>(0);
       const [orderCount, setOrderCount] = useState<number>(0);
@@ -65,7 +68,6 @@ export default function AdminDashboard() {
       const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'users' | 'orders'>('dashboard');
       const [showAddProductForm, setShowAddProductForm] = useState<boolean>(false);
       const [newProduct, setNewProduct] = useState<{ name: string; price: string; image: string; rating: number; stock: number }>({ name: '', price: '', image: '', rating: 4.5, stock: 10 });
-      const [imageFile, setImageFile] = useState<File | null>(null);
       const [uploading, setUploading] = useState<boolean>(false);
       const fileInputRef = useRef<HTMLInputElement>(null);
       const [users, setUsers] = useState<User[]>([]);
@@ -113,7 +115,6 @@ export default function AdminDashboard() {
       }
       await productApi.createProductWithImage(formData, token);
       setNewProduct({ name: '', price: '', image: '', rating: 4.5, stock: 10 });
-      setImageFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       setShowAddProductForm(false);
       // Refresh products if on products tab
@@ -356,60 +357,186 @@ export default function AdminDashboard() {
                 <table className="w-full">
                   <thead className="bg-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left font-bold">Name</th>
-                      <th className="px-6 py-3 text-left font-bold">Email</th>
-                      <th className="px-6 py-3 text-left font-bold">Phone</th>
-                      <th className="px-6 py-3 text-left font-bold">Role</th>
-                      <th className="px-6 py-3 text-left font-bold">Orders</th>
-                      <th className="px-6 py-3 text-left font-bold">Join Date</th>
-                      <th className="px-6 py-3 text-left font-bold">Actions</th>
+                      <th className="px-4 py-3 text-left font-bold">First Name</th>
+                      <th className="px-4 py-3 text-left font-bold">Last Name</th>
+                      <th className="px-4 py-3 text-left font-bold">Email</th>
+                      <th className="px-4 py-3 text-left font-bold">Mobile</th>
+                      <th className="px-4 py-3 text-left font-bold">Password</th>
+                      <th className="px-4 py-3 text-left font-bold">Role</th>
+                      <th className="px-4 py-3 text-left font-bold">Status</th>
+                      <th className="px-4 py-3 text-left font-bold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {users.map(user => (
-                      <tr 
-                        key={user.id} 
-                        onClick={() => navigate(`/admin/user/${user.id}`)}
-                        className="border-t hover:bg-indigo-50 cursor-pointer transition"
-                      >
-                        <td className="px-6 py-4 font-medium text-indigo-700">{user.firstName} {user.lastName}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{user.email}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{user.phone}</td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-block px-3 py-1 rounded-lg font-semibold text-white text-sm ${
-                            (user.role && user.role.toLowerCase() === 'admin') ? 'bg-red-500' : 'bg-blue-500'
-                          }`}>
-                            {user.role
-                              ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-                              : 'Customer'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">{user.orders}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{user.joinDate}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-2 flex-col">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                navigate(`/admin/user/${user.id}`)
-                              }}
-                              className="px-3 py-1 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                userApi.deleteUser(user.id)
-                              }}
-                              className="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {users.map(user => {
+                      const isEditing = editingUserId === user.id;
+                      return (
+                        <tr key={user.id} className="border-t hover:bg-indigo-50 transition">
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editUserData.firstName ?? user.firstName}
+                                onChange={e => setEditUserData({ ...editUserData, firstName: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                              />
+                            ) : (
+                              user.firstName
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editUserData.lastName ?? user.lastName}
+                                onChange={e => setEditUserData({ ...editUserData, lastName: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                              />
+                            ) : (
+                              user.lastName
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <input
+                                type="email"
+                                value={editUserData.email ?? user.email}
+                                onChange={e => setEditUserData({ ...editUserData, email: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                              />
+                            ) : (
+                              user.email
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editUserData.phone ?? user.phone}
+                                onChange={e => setEditUserData({ ...editUserData, phone: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                              />
+                            ) : (
+                              user.phone
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <input
+                                type="password"
+                                value={editUserData.password ?? ''}
+                                onChange={e => setEditUserData({ ...editUserData, password: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                                placeholder="••••••••"
+                              />
+                            ) : (
+                              <span>••••••••</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <select
+                                value={editUserData.role ?? user.role}
+                                onChange={e => setEditUserData({ ...editUserData, role: e.target.value })}
+                                className="border rounded px-2 py-1 w-full"
+                              >
+                                <option value="ROLE_ADMIN">Admin</option>
+                                <option value="ROLE_USER">User</option>
+                              </select>
+                            ) : (
+                              <span className={`inline-block px-3 py-1 rounded-lg font-semibold text-white text-sm ${
+                                (user.role && user.role.toLowerCase() === 'admin') ? 'bg-red-500' : 'bg-blue-500'
+                              }`}>
+                                {user.role === 'ROLE_ADMIN' ? 'Admin' : user.role === 'ROLE_USER' ? 'User' : 'User'}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            {isEditing ? (
+                              <select
+                                value={'active'}
+                                onChange={() => {}}
+                                className="border rounded px-2 py-1 w-full"
+                                disabled
+                              >
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                              </select>
+                            ) : (
+                              <span className={`inline-block px-3 py-1 rounded-lg font-semibold text-white text-sm bg-green-500`}>Active</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            <div className="flex gap-2">
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    className="px-3 py-1 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition text-sm"
+                                    disabled={savingUserId === user.id}
+                                    onClick={async e => {
+                                      e.stopPropagation();
+                                      setSavingUserId(user.id);
+                                      const token = localStorage.getItem('accessToken') || '';
+                                      try {
+                                        await userApi.updateUser(user.id, editUserData, token);
+                                        userApi.getUsers(token)
+                                          .then(res => setUsers(res.data))
+                                          .catch(() => setUsers([]));
+                                        setEditingUserId(null);
+                                        setEditUserData({});
+                                      } catch {
+                                        alert('Failed to update user');
+                                      }
+                                      setSavingUserId(null);
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    className="px-3 py-1 bg-gray-400 text-white font-bold rounded-lg hover:bg-gray-500 transition text-sm"
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      setEditingUserId(null);
+                                      setEditUserData({});
+                                    }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    className="px-3 py-1 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 transition text-sm"
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      setEditingUserId(user.id);
+                                      setEditUserData({
+                                        firstName: user.firstName,
+                                        lastName: user.lastName,
+                                        email: user.email,
+                                        phone: user.phone,
+                                        role: user.role,
+                                      });
+                                    }}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="px-3 py-1 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition text-sm"
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      userApi.deleteUser(user.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

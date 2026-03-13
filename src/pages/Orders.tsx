@@ -1,19 +1,40 @@
-import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '../constants';
-import { useCart } from '../context/CartContext';
 import { useEffect, useState } from 'react';
 import { getMyOrders } from '../api/orderApi';
 
+interface Order {
+  id: string;
+  userId: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  items: any[];
+  subtotal: number;
+  tax: number;
+  address: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  paymentMethod?: string;
+  createdAt?: string;
+}
+
 export default function Orders() {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     async function fetchOrders() {
       try {
         const accessToken = localStorage.getItem('accessToken');
-        const res = await getMyOrders(accessToken);
+        const res = await getMyOrders(accessToken || undefined);
         setOrders(res.data || []);
       } catch (err) {
         setOrders([]);
@@ -23,8 +44,6 @@ export default function Orders() {
     }
     fetchOrders();
   }, []);
-
-  const { orders: cartOrders } = useCart();
 
   if (loading) {
     return (
@@ -42,12 +61,6 @@ export default function Orders() {
         </div>
       </div>
     )
-  }
-
-  const statusIcons = {
-    confirmed: '📋',
-    shipped: '🚚',
-    delivered: '✅',
   }
 
   return (

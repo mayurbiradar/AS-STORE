@@ -17,19 +17,19 @@ export default function UserDetail() {
     lastName: string
     phone: string
     email: string
-    role: 'ROLE_USER' | 'ROLE_ADMIN'
+    role: 'customer' | 'admin'
   }>(user ? {
     firstName: user.firstName,
     lastName: user.lastName,
     phone: user.phone,
     email: user.email,
-    role: user.role || 'ROLE_USER',
+    role: user.role || 'customer',
   } : {
     firstName: '',
     lastName: '',
     phone: '',
     email: '',
-    role: 'ROLE_USER',
+    role: 'customer',
   })
 
   if (!user) {
@@ -130,11 +130,11 @@ export default function UserDetail() {
                     <label className="block text-sm font-bold text-gray-700 mb-2">Role</label>
                     <select
                       value={editData.role}
-                      onChange={(e) => setEditData({ ...editData, role: e.target.value as 'ROLE_USER' | 'ROLE_ADMIN' })}
+                      onChange={(e) => setEditData({ ...editData, role: e.target.value as 'customer' | 'admin' })}
                       className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-600 bg-white"
                     >
-                      <option value="ROLE_USER">User</option>
-                      <option value="ROLE_ADMIN">Admin</option>
+                      <option value="customer">User</option>
+                      <option value="admin">Admin</option>
                     </select>
                   </div>
                   <div className="flex gap-4">
@@ -175,9 +175,9 @@ export default function UserDetail() {
                   <div className="md:col-span-2 border-t border-gray-200 pt-4">
                     <p className="text-gray-600 text-sm mb-2">Role</p>
                     <span className={`inline-block px-4 py-2 rounded-lg font-bold text-white ${
-                      user.role === 'ROLE_ADMIN' ? 'bg-red-500' : 'bg-blue-500'
+                      user.role === 'admin' ? 'bg-red-500' : 'bg-blue-500'
                     }`}>
-                      {user.role === 'ROLE_ADMIN' ? 'Admin' : 'User'}
+                      {user.role === 'admin' ? 'Admin' : 'User'}
                     </span>
                   </div>
                   <div className="border-t border-gray-200 pt-6">
@@ -203,8 +203,8 @@ export default function UserDetail() {
             <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
               <div className="border-b pb-4">
                 <p className="text-gray-600 text-sm mb-1">Account Status</p>
-                <div className={`inline-block px-4 py-2 rounded-full font-bold text-white ${user.role === 'ROLE_ADMIN' ? 'bg-red-600' : 'bg-green-600'}`}>
-                  {user.role === 'ROLE_ADMIN' ? '👑 Admin' : '👤 User'}
+                <div className={`inline-block px-4 py-2 rounded-full font-bold text-white ${user.role === 'admin' ? 'bg-red-600' : 'bg-green-600'}`}>
+                  {user.role === 'admin' ? '👑 Admin' : '👤 User'}
                 </div>
               </div>
               <div className="border-b pb-4">
